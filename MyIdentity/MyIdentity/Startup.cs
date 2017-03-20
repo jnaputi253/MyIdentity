@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -25,13 +26,14 @@ namespace MyIdentity
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<AppIdentityDbContext>(ConfigureConnectionString);
-
-            services.AddIdentity<AppUser, IdentityRole>()
+            services.AddIdentity<AppUser, IdentityRole>(ConfigureCredentialSettings)
                 .AddEntityFrameworkStores<AppIdentityDbContext>();
+
+            services.AddTransient<IPasswordValidator<AppUser>, PasswordValidator<AppUser>>();
 
             services.AddMvc();
         }
-
+        
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
@@ -51,6 +53,15 @@ namespace MyIdentity
         private void ConfigureConnectionString(DbContextOptionsBuilder dbContextOptions)
         {
             dbContextOptions.UseSqlServer(Configuration.GetConnectionString("SportsStoreConnection"));
+        }
+
+        private void ConfigureCredentialSettings(IdentityOptions options)
+        {
+            options.Password.RequiredLength = 8;
+            options.Password.RequireDigit = true;
+            options.Password.RequireLowercase = true;
+            options.Password.RequireNonAlphanumeric = true;
+            options.Password.RequireUppercase = true;
         }
     }
 }

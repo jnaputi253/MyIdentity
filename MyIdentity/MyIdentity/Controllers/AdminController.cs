@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MyIdentity.Models;
@@ -20,9 +16,33 @@ namespace MyIdentity.Controllers
 
         public IActionResult Index() => View(_userManager.Users);
 
-        public IActionResult Create()
+        [HttpGet]
+        public IActionResult Create() => View();
+
+        [HttpPost]
+        public async Task<IActionResult> Create(CreateModel model)
         {
-            throw new NotImplementedException();
+            if (!ModelState.IsValid) return View(model);
+
+            var appUser = new AppUser
+            {
+                UserName = model.Name,
+                Email = model.Email
+            };
+
+            IdentityResult result = await _userManager.CreateAsync(appUser, model.Password);
+
+            if (result.Succeeded)
+            {
+                return RedirectToAction("Index");
+            }
+
+            foreach (IdentityError error in result.Errors)
+            {
+                ModelState.AddModelError("", error.Description);
+            }
+
+            return View(model);
         }
     }
 }
