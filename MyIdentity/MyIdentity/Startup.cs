@@ -9,6 +9,10 @@ using Microsoft.Extensions.Logging;
 using MyIdentity.Data;
 using MyIdentity.Models;
 
+/*
+ * TODO: I want you to continue learning about Identity in Core.
+ */
+
 namespace MyIdentity
 {
     public class Startup
@@ -57,11 +61,11 @@ namespace MyIdentity
 
         private void ConfigureCredentialSettings(IdentityOptions options)
         {
-            options.Password.RequiredLength = 8;
-            options.Password.RequireDigit = true;
-            options.Password.RequireLowercase = true;
-            options.Password.RequireNonAlphanumeric = true;
-            options.Password.RequireUppercase = true;
+            options.Password.RequiredLength = 3;
+            options.Password.RequireDigit = false;
+            options.Password.RequireLowercase = false;
+            options.Password.RequireNonAlphanumeric = false;
+            options.Password.RequireUppercase = false;
         }
     }
 }
