@@ -1,17 +1,34 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using MyIdentity.Data;
+using MyIdentity.Models;
 
 namespace MyIdentity
 {
     public class Startup
     {
-        // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
+        public IConfigurationRoot Configuration { get; set; }
+
+        public Startup(IHostingEnvironment environment)
+        {
+            Configuration = new ConfigurationBuilder()
+                .SetBasePath(environment.ContentRootPath)
+                .AddJsonFile("appsettings.json")
+                .Build();
+        }
+
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<AppIdentityDbContext>(ConfigureConnectionString);
+
+            services.AddIdentity<AppUser, IdentityRole>()
+                .AddEntityFrameworkStores<AppIdentityDbContext>();
+
             services.AddMvc();
         }
 
@@ -27,7 +44,13 @@ namespace MyIdentity
 
             app.UseStatusCodePages();
             app.UseStaticFiles();
+            app.UseIdentity();
             app.UseMvcWithDefaultRoute();
+        }
+
+        private void ConfigureConnectionString(DbContextOptionsBuilder dbContextOptions)
+        {
+            dbContextOptions.UseSqlServer(Configuration.GetConnectionString("SportsStoreConnection"));
         }
     }
 }
